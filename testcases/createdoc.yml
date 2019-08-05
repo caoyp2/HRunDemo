@@ -1,0 +1,51 @@
+config:
+    name: testcase createdoc
+    variables: {}
+    verify: False
+    export:
+      - documentId
+      - memberId
+      - userId
+
+teststeps:
+-   name: login
+    testcase: testcases/login.yml
+-   name: /api/list/create_doc
+    request:
+        data:
+            folderId: '0'
+            type: '0'
+        headers:
+            content-type: application/x-www-form-urlencoded; charset=UTF-8
+            dnt: '1'
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+            x-requested-with: XMLHttpRequest
+        method: POST
+        url: https://mubu.com/api/list/create_doc
+    extract:
+        documentId: content.data.id
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - content.code
+        - 0
+    -   eq:
+        - content.msg
+        - null
+-   name: /doc${documentId}
+    request:
+        headers:
+            dnt: '1'
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+        method: GET
+        url: https://mubu.com/doc${documentId}
+    extract:
+        memberId: "memberId: '(.*)'"
+    validate:
+    -   eq:
+        - status_code
+        - 200

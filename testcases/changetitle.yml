@@ -1,0 +1,186 @@
+config:
+    name: testcase changetitle
+    variables: {}
+#    setup_hooks: ${sleep(1)}  这里相当于在test方法中执行setup_class方法
+    verify: False
+#    base_url: https://mubu.com   base_url可以用来配置公共的域名
+teststeps:
+-   name: createdoc
+    testcase: testcases/createdoc.yml
+    extract:
+        - documentId
+        - memberId
+        - userId
+-   name: /api/document/get
+    request:
+        data:
+            docId: ${documentId}
+        headers:
+            content-type: application/x-www-form-urlencoded; charset=UTF-8
+            dnt: '1'
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+            x-requested-with: XMLHttpRequest
+        method: POST
+        url: https://mubu.com/api/document/get
+#    setup_hooks: ${print_docId($documentId)}   这里相当于在test方法中执行setup_method方法
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - content.code
+        - 0
+    -   eq:
+        - content.msg
+        - Success
+    -  eq: [content.data.name,"无标题"]
+#    -  len_eq: [content.data.name,5]  #校验长度
+-   name: /api/user/current_level
+    request:
+        data: ''
+        headers:
+            dnt: '1'
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+            x-requested-with: XMLHttpRequest
+        method: POST
+        params:
+            document_id: ${documentId}
+        url: https://mubu.com/api/user/current_level
+    extract:
+        userId: content.data.id
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - content.code
+        - 0
+    -   eq:
+        - content.msg
+        - Success
+-   name: /api/ticket/register
+    request:
+        headers:
+            dnt: '1'
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+            x-requested-with: XMLHttpRequest
+        method: GET
+        url: https://mubu.com/api/ticket/register
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - content.code
+        - 0
+    -   eq:
+        - content.msg
+        - Success
+-   name: /api/middleware/members
+    request:
+        headers:
+            dnt: '1'
+            request-id: members:${memberId}:1563860764764
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+            x-requested-with: XMLHttpRequest
+        method: GET
+        params:
+            documentId: ${documentId}
+            memberId: '${memberId}'
+        url: https://mubu.com/api/middleware/members
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - content.code
+        - 0
+    -   eq:
+        - content.msg
+        - success
+-   name: /api/middleware/message
+    request:
+        headers:
+            content-type: application/json; charset=UTF-8
+            dnt: '1'
+            member-id: '${memberId}'
+            request-id: MESSAGE:${userId}:${memberId}:2
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+            x-requested-with: XMLHttpRequest
+        json:
+            context:
+                appVersion: '0'
+                os: Windows
+                osVersion: '10'
+                platform: web
+            data:
+                message:
+                    content:
+                    -   name: nameChanged
+                        title: demo123
+                    documentId: ${documentId}
+                    type: CHANGE
+                    version: 0
+            engineType: MUBU
+            messageType: BROADCAST
+            reqId: 2
+            requestId: MESSAGE:${userId}:${memberId}:2
+            token: ${documentId}
+        method: POST
+        url: https://mubu.com/api/middleware/message
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - content.code
+        - 0
+    -   eq:
+        - content.msg
+        - success
+-   name: /api/middleware/message
+    request:
+        headers:
+            content-type: application/json; charset=UTF-8
+            dnt: '1'
+            member-id: '${memberId}'
+            request-id: MESSAGE:${userId}:${memberId}:8
+            user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+                like Gecko) Chrome/75.0.3770.100 Safari/537.36
+            x-requested-with: XMLHttpRequest
+        json:
+            context:
+                appVersion: '0'
+                os: Windows
+                osVersion: '10'
+                platform: web
+            data:
+                message:
+                    content:
+                    -   name: nameChanged
+                        title: title${get_timestamp()}
+                    documentId: ${documentId}
+                    type: CHANGE
+                    version: 3
+            engineType: MUBU
+            messageType: BROADCAST
+            reqId: 8
+            requestId: MESSAGE:${userId}:${memberId}:8
+            token: ${documentId}
+        method: POST
+        url: https://mubu.com/api/middleware/message
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - content.code
+        - 0
+    -   eq:
+        - content.msg
+        - success

@@ -1,0 +1,11 @@
+config:
+    name: "login params"
+
+testcases:
+-
+    name: login sytem
+    testcase: testcases/login.yml
+    parameters:
+#        phone-password: ${P(data/account.csv)}   #这里表示从一个参数化文件中去读参数
+#        phone-password: ${get_params()}   这里表示从一个方法中去参数化
+       password: ["602385llt"]  #这里表示获取固定的参数
